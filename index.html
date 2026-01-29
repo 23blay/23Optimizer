@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>23 Tools</title>
+<meta name="description" content="23 Optimizer boosts Windows 10 and 11 performance with safe, reversible optimization.">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+    --red:#ff3333;
+    --red-soft:#ff6b6b;
+    --bg:#050507;
+    --panel:rgba(24,24,32,.75);
+    --text:#fff;
+    --muted:rgba(255,255,255,.65);
+    --line:rgba(255,255,255,.06);
+    --grad:linear-gradient(135deg,var(--red),var(--red-soft));
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+}
+
+/* BACKGROUND */
+.bg{
+    position:fixed; inset:0; z-index:-2;
+    background:
+        radial-gradient(circle at 20% 20%,rgba(255,51,51,.15),transparent 40%),
+        radial-gradient(circle at 80% 70%,rgba(120,70,255,.12),transparent 40%),
+        linear-gradient(135deg,#050507,#090912);
+}
+.star{
+    position:absolute;
+    background:var(--red);
+    border-radius:50%;
+    opacity:.5;
+    animation:twinkle 4s infinite ease-in-out;
+}
+@keyframes twinkle{0%,100%{opacity:.2;}50%{opacity:1;}}
+
+/* NAV */
+nav{
+    position:fixed; top:0; width:100%; z-index:1000;
+    background:rgba(10,10,14,.55);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+}
+.nav{
+    max-width:1200px;margin:auto;padding:18px 24px;
+    display:flex;justify-content:space-between;align-items:center;
+}
+.logo{font-size:24px;font-weight:800;color:var(--red);text-decoration:none;}
+.nav-links a{
+    margin-left:28px;font-size:13px;text-transform:uppercase;
+    color:rgba(255,255,255,.65);text-decoration:none;transition:.3s;
+}
+.nav-links a:hover{color:#fff}
+
+/* HERO */
+.hero{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:150px 20px 100px;text-align:center;
+}
+.hero h1{
+    font-size:88px;font-weight:900;
+    background:linear-gradient(135deg,#fff,var(--red));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    position:relative;
+}
+.hero p{margin-top:26px;font-size:22px;color:var(--muted);}
+
+/* CTA */
+.cta{
+    display:inline-flex;align-items:center;gap:14px;margin-top:48px;
+    padding:22px 60px;font-size:20px;font-weight:600;
+    background:var(--grad);color:#fff;border-radius:18px;text-decoration:none;
+    box-shadow:0 30px 80px rgba(255,51,51,.45);
+    transition:.35s cubic-bezier(.22,.61,.36,1);
+}
+.cta:hover{transform:translateY(-8px) scale(1.05);box-shadow:0 50px 120px rgba(255,51,51,.6);}
+
+.hero-proof{
+    margin-top:36px;
+    display:flex;
+    justify-content:center;
+    gap:24px;
+    flex-wrap:wrap;
+    font-size:14px;
+}
+.proof-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 16px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background:rgba(255,255,255,.02);
+}
+.proof-item i{color:var(--red)}
+
+/* TRUST BANNER */
+.trust-banner{
+    margin:34px auto 0;
+    max-width:720px;
+    padding:26px 30px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    display:flex;
+    gap:18px;
+}
+.trust-banner i{font-size:26px;color:var(--red)}
+
+/* UI PREVIEW */
+.ui-preview{
+    margin:100px auto 0;
+    max-width:950px;
+    background:linear-gradient(180deg,#111,#0b0b12);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:18px;
+    box-shadow:0 60px 140px rgba(0,0,0,.7);
+    animation:float 6s ease-in-out infinite;
+}
+@keyframes float{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-12px);}
+}
+.ui-preview img{
+    width:100%;
+    border-radius:12px;
+}
+
+/* SECTIONS */
+.section{
+    max-width:1200px;
+    margin:auto;
+    padding:130px 20px;
+}
+.section h2{
+    text-align:center;
+    font-size:48px;
+    font-weight:900;
+    margin-bottom:80px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:30px;
+}
+.card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:44px;
+    opacity:0;
+    transform:translateY(40px);
+    transition:.5s;
+}
+.card.reveal{opacity:1;transform:none;}
+.card i{font-size:44px;color:var(--red);margin-bottom:20px;}
+.card p{color:var(--muted);line-height:1.6}
+
+/* MISSION */
+.mission-box{
+    max-width:900px;
+    margin:0 auto;
+    padding:60px 50px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:22px;
+    text-align:center;
+    opacity:0;
+    transform:translateY(40px);
+    transition:.6s;
+}
+.mission-box.reveal{opacity:1;transform:none;}
+.mission-box p{
+    font-size:18px;
+    color:var(--muted);
+    line-height:1.7;
+    margin-bottom:22px;
+}
+
+/* TRUST SECTION */
+.trust-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:30px;
+}
+.trust-item{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:40px;
+    opacity:0;
+    transform:translateY(40px);
+    transition:.5s;
+}
+.trust-item.reveal{opacity:1;transform:none;}
+.trust-item i{
+    font-size:40px;
+    color:var(--red);
+    margin-bottom:18px;
+}
+.trust-item p{
+    color:var(--muted);
+    line-height:1.6;
+}
+
+/* FOOTER */
+footer{
+    padding:90px 20px 40px;
+    text-align:center;
+    border-top:1px solid var(--line);
+}
+footer h3{font-size:34px;font-weight:900;color:var(--red);}
+footer p{margin-top:20px;font-size:14px;color:rgba(255,255,255,.45);}
+</style>
+</head>
+
+<body>
+
+<div class="bg" id="bg"></div>
+
+<nav>
+<div class="nav">
+    <a class="logo" href="#">23 Tools</a>
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#mission">Mission</a>
+        <a href="#trust">Trust</a>
+    </div>
+</div>
+</nav>
+
+<section class="hero">
+<div>
+    <h1>23 OPTIMIZER</h1>
+    <p>Make Windows feel fast again.<br>Safe. Reversible. One click.</p>
+
+    <a class="cta" href="https://www.dropbox.com/scl/fi/yxcudi0oaijh4dygwswyn/23-Optimizer.exe?rlkey=p3z00djyjaea9k88v6jwl105j&st=0engsqyh&dl=1"><i class="fas fa-download"></i> Download v1.2</a>
+
+    <div class="hero-proof">
+        <div class="proof-item"><i class="fas fa-undo"></i> Fully Reversible</div>
+        <div class="proof-item"><i class="fas fa-lock"></i> Privacy Focused</div>
+        <div class="proof-item"><i class="fas fa-bolt"></i> One Click</div>
+    </div>
+
+    <div class="trust-banner">
+        <i class="fas fa-shield-check"></i>
+        <div>
+            <strong>Why Windows Shows a Warning</strong><br>
+            The application is new and not yet code signed. No drivers, services, or hidden processes are installed.
+        </div>
+    </div>
+
+    <div class="ui-preview">
+        <img src="https://www.dropbox.com/scl/fi/j48jz9w75nsjzkf2b0m3j/image.png?rlkey=lk51poizlkhketevpdjsaw0bw&st=2qlbvoge&dl=1" alt="23 Optimizer UI">
+    </div>
+</div>
+</section>
+
+<section class="section" id="mission">
+<h2>Our Mission</h2>
+<div class="mission-box">
+    <p>
+        Our mission is to simplify PC tasks such as file cleaning, performance enhancement,
+        and safe system optimization.
+    </p>
+    <p>
+        Our tools are designed to be easy to use, reliable, and accessible to everyone.
+        We prioritize system safety, protect your privacy, and do not collect or hide your data.
+    </p>
+</div>
+</section>
+
+<section class="section" id="features">
+<h2>What It Improves</h2>
+<div class="grid">
+    <div class="card"><i class="fas fa-bolt"></i><p>System performance and responsiveness</p></div>
+    <div class="card"><i class="fas fa-gamepad"></i><p>Gaming stability and reduced latency</p></div>
+    <div class="card"><i class="fas fa-network-wired"></i><p>Network reliability</p></div>
+    <div class="card"><i class="fas fa-shield-alt"></i><p>Safe and reversible optimizations</p></div>
+</div>
+</section>
+
+<section class="section" id="trust">
+<h2>Trust And Privacy</h2>
+<div class="trust-grid">
+    <div class="trust-item"><i class="fas fa-lock"></i><p>No data collection. No tracking. No analytics.</p></div>
+    <div class="trust-item"><i class="fas fa-microchip"></i><p>No background services or startup tasks.</p></div>
+    <div class="trust-item"><i class="fas fa-eye"></i><p>All optimizations are visible and reversible.</p></div>
+    <div class="trust-item"><i class="fas fa-user-shield"></i><p>Your system stays under your control.</p></div>
+</div>
+</section>
+
+<footer>
+<h3>23 OPTIMIZER</h3>
+<p>© 2026. Windows Optimization Made Easy.<br>Not affiliated with Microsoft.</p>
+</footer>
+
+<script>
+const bg=document.getElementById("bg");
+for(let i=0;i<150;i++){
+    const s=document.createElement("div");
+    s.className="star";
+    const z=Math.random()*2+1;
+    s.style.width=z+"px";
+    s.style.height=z+"px";
+    s.style.left=Math.random()*100+"%";
+    s.style.top=Math.random()*100+"%";
+    s.style.animationDelay=Math.random()*4+"s";
+    bg.appendChild(s);
+}
+
+const observer=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+        if(e.isIntersecting)e.target.classList.add("reveal");
+    });
+},{threshold:.15});
+
+document.querySelectorAll(".card,.mission-box,.trust-item").forEach(el=>observer.observe(el));
+</script>
+
+</body>
+</html>
