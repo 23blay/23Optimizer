@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>23 Tools - Windows Optimizer</title>
+<meta name="description" content="23 Optimizer boosts Windows 10 and 11 performance with safe, reversible optimization.">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+    --red:#ff3333;
+    --red-soft:#ff6b6b;
+    --red-dark:#cc0000;
+    --purple:#8b5cf6;
+    --bg:#050507;
+    --panel:rgba(24,24,32,.85);
+    --text:#fff;
+    --muted:rgba(255,255,255,.7);
+    --line:rgba(255,255,255,.08);
+    --glow:rgba(255,51,51,.3);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+    line-height:1.6;
+}
+
+/* Scroll Progress Bar */
+.scroll-progress{
+    position:fixed;
+    top:0;
+    left:0;
+    width:0;
+    height:3px;
+    background:linear-gradient(90deg,var(--red),var(--red-soft),var(--purple));
+    z-index:10000;
+    transition:width .1s ease;
+    box-shadow:0 0 10px rgba(255,51,51,.6);
+}
+
+/* ENHANCED BACKGROUND */
+.bg{
+    position:fixed; inset:0; z-index:-2;
+    background:
+        radial-gradient(circle at 15% 15%,rgba(255,51,51,.2),transparent 35%),
+        radial-gradient(circle at 85% 75%,rgba(139,92,246,.18),transparent 40%),
+        radial-gradient(circle at 50% 50%,rgba(255,107,107,.08),transparent 60%),
+        linear-gradient(135deg,#050507,#0a0a15);
+}
+.star{
+    position:absolute;
+    background:var(--red);
+    border-radius:50%;
+    opacity:.4;
+    animation:twinkle 4s infinite ease-in-out;
+    box-shadow:0 0 8px rgba(255,51,51,.6);
+}
+@keyframes twinkle{
+    0%,100%{opacity:.2;transform:scale(1);}
+    50%{opacity:1;transform:scale(1.3);}
+}
+
+/* Animated gradient orbs */
+.orb{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(80px);
+    opacity:.15;
+    z-index:-1;
+    animation:float-orb 20s infinite ease-in-out;
+}
+.orb-1{
+    width:400px;height:400px;
+    background:radial-gradient(circle,var(--red),transparent);
+    top:10%;left:5%;
+    animation-delay:0s;
+}
+.orb-2{
+    width:350px;height:350px;
+    background:radial-gradient(circle,var(--purple),transparent);
+    bottom:20%;right:10%;
+    animation-delay:-10s;
+}
+@keyframes float-orb{
+    0%,100%{transform:translate(0,0) scale(1);}
+    33%{transform:translate(30px,-30px) scale(1.1);}
+    66%{transform:translate(-30px,30px) scale(.9);}
+}
+
+/* NAV */
+nav{
+    position:fixed; top:0; width:100%; z-index:1000;
+    background:rgba(5,5,10,.85);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(255,51,51,.15);
+    box-shadow:
+        0 4px 30px rgba(0,0,0,.4),
+        0 1px 0 rgba(255,51,51,.1) inset;
+}
+.nav{
+    padding:20px 60px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.logo{
+    font-size:28px;
+    font-weight:900;
+    text-decoration:none;
+    letter-spacing:-1px;
+    transition:all .3s ease;
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:8px 18px;
+    border-radius:12px;
+    background:rgba(255,51,51,.08);
+    border:1px solid rgba(255,51,51,.25);
+}
+.logo-text{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.logo-number{
+    font-size:32px;
+    color:var(--red);
+    font-weight:900;
+    position:relative;
+    filter:drop-shadow(0 0 8px rgba(255,51,51,.6));
+}
+.logo-number::after{
+    content:'23';
+    position:absolute;
+    left:0;
+    top:0;
+    color:var(--red);
+    filter:blur(12px);
+    opacity:.5;
+    z-index:-1;
+}
+.logo-name{
+    font-size:32px;
+    color:var(--red);
+    font-weight:900;
+    letter-spacing:2px;
+    filter:drop-shadow(0 0 8px rgba(255,51,51,.6));
+}
+.logo::before{
+    content:'';
+    position:absolute;
+    inset:-2px;
+    background:linear-gradient(135deg,var(--red),var(--red-soft));
+    border-radius:12px;
+    opacity:0;
+    z-index:-1;
+    filter:blur(12px);
+    transition:.3s;
+}
+.logo:hover::before{
+    opacity:.7;
+}
+.logo:hover{
+    background:rgba(255,51,51,.12);
+    border-color:rgba(255,51,51,.5);
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(255,51,51,.4);
+}
+.logo:hover .logo-number,
+.logo:hover .logo-name{
+    filter:drop-shadow(0 0 16px rgba(255,51,51,1));
+}
+.nav-links{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+.nav-links a{
+    padding:12px 28px;
+    font-size:14px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:rgba(255,255,255,.7);
+    text-decoration:none;
+    transition:all .3s ease;
+    position:relative;
+    border-radius:10px;
+    background:transparent;
+}
+.nav-links a::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:10px;
+    background:linear-gradient(135deg,rgba(255,51,51,.12),rgba(255,107,107,.06));
+    opacity:0;
+    transition:.3s;
+}
+.nav-links a::after{
+    content:'';
+    position:absolute;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;
+    height:2px;
+    background:linear-gradient(90deg,transparent,var(--red),transparent);
+    transition:.3s;
+    box-shadow:0 0 8px var(--red);
+}
+.nav-links a:hover{
+    color:#fff;
+    background:rgba(255,51,51,.06);
+}
+.nav-links a:hover::before{
+    opacity:1;
+}
+.nav-links a:hover::after{
+    width:70%;
+}
+.nav-links a.active{
+    color:#fff;
+    background:rgba(255,51,51,.12);
+}
+.nav-links a.active::after{
+    width:70%;
+}
+
+/* HERO */
+.hero{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:200px 20px 140px;text-align:center;
+    position:relative;
+}
+.hero-content{
+    max-width:1100px;
+    margin:0 auto;
+}
+.hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 24px;
+    background:rgba(255,51,51,.1);
+    border:1px solid rgba(255,51,51,.3);
+    border-radius:999px;
+    color:var(--red-soft);
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:32px;
+    animation:badge-glow 3s ease-in-out infinite;
+}
+@keyframes badge-glow{
+    0%,100%{box-shadow:0 0 20px rgba(255,51,51,.2);}
+    50%{box-shadow:0 0 30px rgba(255,51,51,.4);}
+}
+.hero-badge i{
+    font-size:14px;
+    animation:spin-slow 8s linear infinite;
+}
+@keyframes spin-slow{
+    to{transform:rotate(360deg);}
+}
+.hero h1{
+    font-size:clamp(56px,12vw,100px);
+    font-weight:900;
+    background:linear-gradient(135deg,#fff 0%,var(--red-soft) 50%,var(--purple) 100%);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    position:relative;
+    letter-spacing:-3px;
+    line-height:1.05;
+    animation:title-glow 3s ease-in-out infinite;
+    margin-bottom:28px;
+}
+@keyframes title-glow{
+    0%,100%{filter:drop-shadow(0 0 30px rgba(255,51,51,.3));}
+    50%{filter:drop-shadow(0 0 50px rgba(255,51,51,.6));}
+}
+.hero h1 span{
+    display:block;
+    font-size:clamp(20px,4vw,28px);
+    font-weight:700;
+    letter-spacing:8px;
+    margin-bottom:10px;
+    background:linear-gradient(90deg,transparent,var(--red),transparent);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+.hero p{
+    margin-top:28px;
+    font-size:clamp(18px,3vw,24px);
+    color:var(--muted);
+    font-weight:400;
+    line-height:1.7;
+    max-width:700px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+/* ENHANCED CTA */
+.cta{
+    display:inline-flex;align-items:center;gap:16px;
+    margin-top:56px;
+    padding:24px 64px;
+    font-size:20px;font-weight:700;
+    background:linear-gradient(135deg,var(--red),var(--red-soft));
+    color:#fff;
+    border-radius:16px;
+    text-decoration:none;
+    box-shadow:
+        0 20px 60px rgba(255,51,51,.4),
+        0 0 0 1px rgba(255,255,255,.1) inset;
+    transition:all .4s cubic-bezier(.22,.61,.36,1);
+    position:relative;
+    overflow:hidden;
+}
+.cta::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,transparent,rgba(255,255,255,.15),transparent);
+    transform:translateX(-100%);
+    transition:.6s;
+}
+.cta:hover::before{transform:translateX(100%);}
+.cta:hover{
+    transform:translateY(-6px) scale(1.03);
+    box-shadow:
+        0 30px 90px rgba(255,51,51,.6),
+        0 0 0 1px rgba(255,255,255,.2) inset;
+}
+.cta i{font-size:22px}
+
+/* PROOF BADGES */
+.hero-proof{
+    margin-top:48px;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+.proof-item{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 24px;
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:999px;
+    background:rgba(255,255,255,.03);
+    backdrop-filter:blur(10px);
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+}
+.proof-item:hover{
+    background:rgba(255,255,255,.06);
+    border-color:rgba(255,255,255,.25);
+    transform:translateY(-2px);
+}
+.proof-item i{
+    color:var(--red);
+    font-size:18px;
+}
+
+/* TRUST BANNER */
+.trust-banner{
+    margin:48px auto 0;
+    max-width:750px;
+    padding:32px 36px;
+    background:rgba(30,30,42,.6);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:20px;
+    display:flex;
+    gap:24px;
+    align-items:flex-start;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
+    transition:.3s;
+}
+.trust-banner:hover{
+    border-color:rgba(255,255,255,.2);
+    box-shadow:0 25px 70px rgba(0,0,0,.5);
+}
+.trust-banner i{
+    font-size:32px;
+    color:var(--red);
+    margin-top:4px;
+    flex-shrink:0;
+}
+.trust-banner strong{
+    color:#fff;
+    font-size:16px;
+    display:block;
+    margin-bottom:6px;
+}
+
+/* UI PREVIEW */
+.ui-preview{
+    margin:80px auto 0;
+    max-width:1000px;
+    background:linear-gradient(145deg,#0f0f18,#08080d);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:24px;
+    padding:24px;
+    box-shadow:
+        0 60px 140px rgba(0,0,0,.8),
+        0 0 80px rgba(255,51,51,.15);
+    animation:float 6s ease-in-out infinite;
+    position:relative;
+}
+.ui-preview::before{
+    content:'';
+    position:absolute;
+    inset:-2px;
+    background:linear-gradient(135deg,var(--red),var(--purple));
+    border-radius:24px;
+    z-index:-1;
+    opacity:.3;
+    filter:blur(20px);
+}
+@keyframes float{
+    0%,100%{transform:translateY(0) rotateX(0deg);}
+    50%{transform:translateY(-20px) rotateX(2deg);}
+}
+.ui-preview img{
+    width:100%;
+    border-radius:16px;
+    box-shadow:0 10px 40px rgba(0,0,0,.5);
+}
+
+/* SECTIONS */
+.section{
+    max-width:1200px;
+    margin:auto;
+    padding:140px 20px;
+    position:relative;
+}
+.section-header{
+    text-align:center;
+    margin-bottom:90px;
+}
+.section-label{
+    display:inline-block;
+    padding:8px 20px;
+    background:rgba(255,51,51,.1);
+    border:1px solid rgba(255,51,51,.2);
+    border-radius:999px;
+    color:var(--red-soft);
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    margin-bottom:24px;
+}
+.section h2{
+    font-size:clamp(36px,6vw,56px);
+    font-weight:900;
+    background:linear-gradient(135deg,#fff,var(--red-soft));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    letter-spacing:-1.5px;
+    line-height:1.2;
+}
+.section-desc{
+    max-width:650px;
+    margin:20px auto 0;
+    font-size:17px;
+    color:var(--muted);
+    line-height:1.7;
+}
+
+/* Stats Section */
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:24px;
+    margin:80px 0;
+    padding:0 20px;
+}
+.stat-item{
+    text-align:center;
+    padding:36px 24px;
+    background:rgba(24,24,32,.5);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:20px;
+    transition:.3s;
+}
+.stat-item:hover{
+    background:rgba(24,24,32,.7);
+    border-color:rgba(255,51,51,.3);
+    transform:translateY(-4px);
+}
+.stat-number{
+    font-size:48px;
+    font-weight:900;
+    background:linear-gradient(135deg,var(--red),var(--red-soft));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    line-height:1;
+    margin-bottom:12px;
+}
+.stat-label{
+    font-size:14px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-weight:600;
+}
+
+/* ENHANCED CARDS */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:28px;
+}
+.card{
+    background:rgba(24,24,32,.7);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:24px;
+    padding:48px;
+    opacity:0;
+    transform:translateY(60px);
+    transition:all .6s cubic-bezier(.22,.61,.36,1);
+    position:relative;
+    overflow:hidden;
+}
+.card::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,transparent,rgba(255,51,51,.05));
+    opacity:0;
+    transition:.4s;
+}
+.card:hover::before{opacity:1}
+.card.reveal{opacity:1;transform:none;}
+.card:hover{
+    border-color:rgba(255,255,255,.25);
+    transform:translateY(-8px);
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.card i{
+    font-size:48px;
+    color:var(--red);
+    margin-bottom:24px;
+    display:block;
+    transition:.4s;
+}
+.card:hover i{
+    transform:scale(1.1) rotateY(10deg);
+    filter:drop-shadow(0 0 20px var(--glow));
+}
+.card h3{
+    font-size:20px;
+    margin-bottom:12px;
+    color:#fff;
+}
+.card p{
+    color:var(--muted);
+    line-height:1.7;
+    font-size:15px;
+}
+
+/* MISSION */
+.mission-box{
+    max-width:920px;
+    margin:0 auto;
+    padding:70px 60px;
+    background:rgba(30,30,42,.7);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:28px;
+    text-align:center;
+    opacity:0;
+    transform:translateY(60px);
+    transition:.7s cubic-bezier(.22,.61,.36,1);
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 30px 90px rgba(0,0,0,.5);
+}
+.mission-box::before{
+    content:'';
+    position:absolute;
+    top:-50%;left:-50%;
+    width:200%;height:200%;
+    background:conic-gradient(from 0deg,transparent,rgba(255,51,51,.1),transparent 30%);
+    animation:rotate 8s linear infinite;
+}
+@keyframes rotate{to{transform:rotate(360deg);}}
+.mission-box-content{
+    position:relative;
+    z-index:1;
+}
+.mission-box.reveal{opacity:1;transform:none;}
+.mission-box p{
+    font-size:19px;
+    color:var(--muted);
+    line-height:1.8;
+    margin-bottom:24px;
+}
+.mission-box p:last-child{margin-bottom:0}
+
+/* TRUST SECTION */
+.trust-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:28px;
+}
+.trust-item{
+    background:rgba(24,24,32,.7);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:24px;
+    padding:44px;
+    opacity:0;
+    transform:translateY(60px);
+    transition:all .6s cubic-bezier(.22,.61,.36,1);
+    position:relative;
+}
+.trust-item::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:24px;
+    background:linear-gradient(135deg,transparent,rgba(255,51,51,.03));
+    opacity:0;
+    transition:.3s;
+}
+.trust-item:hover::after{opacity:1}
+.trust-item.reveal{opacity:1;transform:none;}
+.trust-item:hover{
+    border-color:rgba(255,255,255,.25);
+    transform:translateY(-6px);
+    box-shadow:0 25px 70px rgba(0,0,0,.5);
+}
+.trust-item i{
+    font-size:44px;
+    color:var(--red);
+    margin-bottom:22px;
+    display:block;
+    transition:.4s;
+}
+.trust-item:hover i{
+    transform:scale(1.1);
+    filter:drop-shadow(0 0 15px var(--glow));
+}
+.trust-item p{
+    color:var(--muted);
+    line-height:1.7;
+    font-size:15px;
+}
+
+/* FOOTER */
+footer{
+    padding:100px 20px 50px;
+    text-align:center;
+    border-top:1px solid var(--line);
+    position:relative;
+    background:rgba(5,5,7,.5);
+}
+.footer-content{
+    max-width:1200px;
+    margin:0 auto;
+}
+footer h3{
+    font-size:42px;
+    font-weight:900;
+    background:linear-gradient(135deg,var(--red),var(--red-soft));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:20px;
+    letter-spacing:-1px;
+}
+.footer-links{
+    display:flex;
+    justify-content:center;
+    gap:32px;
+    margin:32px 0;
+    flex-wrap:wrap;
+}
+.footer-links a{
+    color:rgba(255,255,255,.6);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+}
+.footer-links a:hover{
+    color:var(--red);
+}
+.footer-divider{
+    width:100px;
+    height:2px;
+    background:linear-gradient(90deg,transparent,var(--red),transparent);
+    margin:32px auto;
+}
+footer p{
+    font-size:14px;
+    color:rgba(255,255,255,.4);
+    line-height:1.8;
+}
+footer p strong{
+    color:rgba(255,255,255,.6);
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+    .nav{padding:16px 28px}
+    .logo{
+        font-size:24px;
+        padding:6px 14px;
+    }
+    .logo-number{font-size:26px}
+    .logo-name{font-size:26px;letter-spacing:1.5px}
+    .nav-links{
+        position:fixed;
+        top:68px;
+        right:-100%;
+        width:280px;
+        height:calc(100vh - 68px);
+        background:rgba(5,5,10,.98);
+        backdrop-filter:blur(24px);
+        border-left:1px solid rgba(255,51,51,.15);
+        flex-direction:column;
+        align-items:stretch;
+        padding:40px 0;
+        gap:0;
+        transition:.4s cubic-bezier(.22,.61,.36,1);
+        box-shadow:-10px 0 40px rgba(0,0,0,.5);
+    }
+    .nav-links.active{
+        right:0;
+    }
+    .nav-links a{
+        margin:0;
+        padding:20px 32px;
+        border-radius:0;
+        border-bottom:1px solid rgba(255,255,255,.05);
+        text-align:left;
+    }
+    .menu-toggle{
+        display:flex;
+        flex-direction:column;
+        gap:6px;
+        cursor:pointer;
+        padding:8px;
+    }
+    .menu-toggle span{
+        width:26px;
+        height:2px;
+        background:var(--red);
+        border-radius:2px;
+        transition:.3s;
+        box-shadow:0 0 8px rgba(255,51,51,.5);
+    }
+    .menu-toggle.active span:nth-child(1){
+        transform:rotate(45deg) translate(8px,8px);
+    }
+    .menu-toggle.active span:nth-child(2){
+        opacity:0;
+    }
+    .menu-toggle.active span:nth-child(3){
+        transform:rotate(-45deg) translate(7px,-7px);
+    }
+    .hero{padding:140px 20px 80px}
+    .cta{padding:20px 48px;font-size:18px}
+    .trust-banner{flex-direction:column;text-align:center}
+    .ui-preview{margin-top:60px}
+    .section{padding:100px 20px}
+    .card,.trust-item{padding:36px}
+    .mission-box{padding:50px 36px}
+}
+.menu-toggle{
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="bg" id="bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<nav>
+<div class="nav">
+    <a class="logo" href="#">
+        <div class="logo-text">
+            <span class="logo-number">23</span>
+            <span class="logo-name">TOOLS</span>
+        </div>
+    </a>
+    <div class="menu-toggle" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="nav-links" id="navLinks">
+        <a href="#features">Features</a>
+        <a href="#mission">Mission</a>
+        <a href="#trust">Trust</a>
+    </div>
+</div>
+</nav>
+
+<section class="hero">
+<div class="hero-content">
+    <div class="hero-badge">
+        <i class="fas fa-star"></i>
+        <span>Windows 10 & 11 Compatible</span>
+    </div>
+    <h1>
+        <span>INTRODUCING</span>
+        23 OPTIMIZER
+    </h1>
+    <p>Make Windows feel fast again.<br>Safe. Reversible. One click.</p>
+
+    <a class="cta" href="https://www.dropbox.com/scl/fi/yxcudi0oaijh4dygwswyn/23-Optimizer.exe?rlkey=p3z00djyjaea9k88v6jwl105j&st=0engsqyh&dl=1">
+        <i class="fas fa-download"></i> Download v1.2
+    </a>
+
+    <div class="hero-proof">
+        <div class="proof-item"><i class="fas fa-undo"></i> Fully Reversible</div>
+        <div class="proof-item"><i class="fas fa-lock"></i> Privacy Focused</div>
+        <div class="proof-item"><i class="fas fa-bolt"></i> One Click</div>
+    </div>
+
+    <div class="trust-banner">
+        <i class="fas fa-shield-check"></i>
+        <div>
+            <strong>Why Windows Shows a Warning</strong>
+            The application is new and not yet code signed. No drivers, services, or hidden processes are installed.
+        </div>
+    </div>
+
+    <div class="ui-preview">
+        <img src="https://www.dropbox.com/scl/fi/j48jz9w75nsjzkf2b0m3j/image.png?rlkey=lk51poizlkhketevpdjsaw0bw&st=2qlbvoge&dl=1" alt="23 Optimizer Interface">
+    </div>
+</div>
+</section>
+
+<section class="section" id="mission">
+<div class="section-header">
+    <div class="section-label">Our Purpose</div>
+    <h2>Our Mission</h2>
+    <p class="section-desc">Building tools that make Windows optimization simple, safe, and accessible to everyone</p>
+</div>
+<div class="mission-box">
+    <div class="mission-box-content">
+        <p>
+            Our mission is to simplify PC tasks such as file cleaning, performance enhancement,
+            and safe system optimization.
+        </p>
+        <p>
+            Our tools are designed to be easy to use, reliable, and accessible to everyone.
+            We prioritize system safety, protect your privacy, and do not collect or hide your data.
+        </p>
+    </div>
+</div>
+</section>
+
+<section class="section" id="features">
+<div class="section-header">
+    <div class="section-label">Core Features</div>
+    <h2>What It Improves</h2>
+    <p class="section-desc">Comprehensive optimizations designed to enhance every aspect of your Windows experience</p>
+</div>
+<div class="grid">
+    <div class="card">
+        <i class="fas fa-bolt"></i>
+        <h3>Performance</h3>
+        <p>System performance and responsiveness optimized for everyday tasks</p>
+    </div>
+    <div class="card">
+        <i class="fas fa-gamepad"></i>
+        <h3>Gaming</h3>
+        <p>Gaming stability and reduced latency for smoother gameplay</p>
+    </div>
+    <div class="card">
+        <i class="fas fa-network-wired"></i>
+        <h3>Network</h3>
+        <p>Network reliability improvements for better connectivity</p>
+    </div>
+    <div class="card">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Safety</h3>
+        <p>Safe and reversible optimizations you can trust</p>
+    </div>
+</div>
+</section>
+
+<section class="section" id="trust">
+<div class="section-header">
+    <div class="section-label">Security First</div>
+    <h2>Trust And Privacy</h2>
+    <p class="section-desc">Your data and system remain completely under your control—no hidden processes, no tracking</p>
+</div>
+<div class="trust-grid">
+    <div class="trust-item">
+        <i class="fas fa-lock"></i>
+        <p>No data collection. No tracking. No analytics.</p>
+    </div>
+    <div class="trust-item">
+        <i class="fas fa-microchip"></i>
+        <p>No background services or startup tasks.</p>
+    </div>
+    <div class="trust-item">
+        <i class="fas fa-eye"></i>
+        <p>All optimizations are visible and reversible.</p>
+    </div>
+    <div class="trust-item">
+        <i class="fas fa-user-shield"></i>
+        <p>Your system stays under your control.</p>
+    </div>
+</div>
+</section>
+
+<footer>
+<div class="footer-content">
+    <h3>23 OPTIMIZER</h3>
+    <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#mission">Mission</a>
+        <a href="#trust">Privacy</a>
+    </div>
+    <div class="footer-divider"></div>
+    <p>
+        <strong>© 2026 23 Tools.</strong> Windows Optimization Made Easy.<br>
+        Not affiliated with Microsoft Corporation. Windows is a registered trademark of Microsoft.
+    </p>
+</div>
+</footer>
+
+<script>
+// Scroll progress bar
+const scrollProgress=document.getElementById("scrollProgress");
+window.addEventListener("scroll",()=>{
+    const windowHeight=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+    const scrolled=(window.scrollY/windowHeight)*100;
+    scrollProgress.style.width=scrolled+"%";
+});
+
+// Enhanced starfield
+const bg=document.getElementById("bg");
+for(let i=0;i<200;i++){
+    const s=document.createElement("div");
+    s.className="star";
+    const z=Math.random()*2.5+0.5;
+    s.style.width=z+"px";
+    s.style.height=z+"px";
+    s.style.left=Math.random()*100+"%";
+    s.style.top=Math.random()*100+"%";
+    s.style.animationDelay=Math.random()*4+"s";
+    s.style.animationDuration=(Math.random()*3+2)+"s";
+    bg.appendChild(s);
+}
+
+// Mobile menu toggle
+const menuToggle=document.getElementById("menuToggle");
+const navLinks=document.getElementById("navLinks");
+menuToggle.addEventListener("click",()=>{
+    menuToggle.classList.toggle("active");
+    navLinks.classList.toggle("active");
+});
+
+// Close mobile menu when clicking a link
+document.querySelectorAll(".nav-links a").forEach(link=>{
+    link.addEventListener("click",()=>{
+        menuToggle.classList.remove("active");
+        navLinks.classList.remove("active");
+    });
+});
+
+// Active navigation state on scroll
+const sections=document.querySelectorAll(".section");
+const navLinksArr=document.querySelectorAll(".nav-links a");
+
+window.addEventListener("scroll",()=>{
+    let current="";
+    sections.forEach(section=>{
+        const sectionTop=section.offsetTop;
+        const sectionHeight=section.clientHeight;
+        if(pageYOffset>=(sectionTop-200)){
+            current=section.getAttribute("id");
+        }
+    });
+    
+    navLinksArr.forEach(link=>{
+        link.classList.remove("active");
+        if(link.getAttribute("href")==="#"+current){
+            link.classList.add("active");
+        }
+    });
+});
+
+// Intersection observer for reveal animations
+const observer=new IntersectionObserver(entries=>{
+    entries.forEach((e,index)=>{
+        if(e.isIntersecting){
+            setTimeout(()=>{
+                e.target.classList.add("reveal");
+            },index*80);
+        }
+    });
+},{threshold:.12});
+
+document.querySelectorAll(".card,.mission-box,.trust-item").forEach(el=>observer.observe(el));
+
+// Smooth scroll for navigation
+document.querySelectorAll('a[href^="#"]').forEach(anchor=>{
+    anchor.addEventListener('click',function(e){
+        e.preventDefault();
+        const target=document.querySelector(this.getAttribute('href'));
+        if(target){
+            target.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+    });
+});
+</script>
+
+</body>
+</html>
