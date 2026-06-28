@@ -1,0 +1,129 @@
+END USER LICENSE AGREEMENT (EULA)
+23 Optimizer Software
+
+Effective Date: June 28, 2026
+
+This End User License Agreement (“Agreement”) is a legal agreement between you (“User”) and 23 Studios (“Licensor”) for the use of the software product 23 Optimizer (“Software”).
+
+By installing, copying, or using the Software, you agree to be bound by the terms of this Agreement. If you do not agree, do not install or use the Software.
+
+1. LICENSE GRANT
+
+Subject to compliance with this Agreement, Licensor grants you a limited, non-exclusive, non-transferable, revocable license to install and use the Software on a single Windows device owned or controlled by you.
+
+This license is for personal or internal use only unless explicitly authorized in writing by Licensor.
+
+2. RESTRICTIONS
+
+You may NOT:
+
+Reverse engineer, decompile, or disassemble the Software
+Modify, alter, or create derivative works of the Software
+Redistribute, resell, rent, lease, or sublicense the Software
+Bypass, disable, or tamper with the license verification system
+Use the Software for malicious, illegal, or unauthorized system modification
+Integrate the Software into commercial automation or optimization services without permission
+3. SYSTEM MODIFICATIONS & RISK ACKNOWLEDGMENT
+
+23 Optimizer performs system-level changes including but not limited to:
+
+Registry modifications
+Service configuration changes
+Performance and GPU-related optimizations
+System restore point creation
+
+You acknowledge and agree that:
+
+These operations may affect system stability
+Improper use may cause performance issues or system errors
+You are solely responsible for changes applied through the Software
+You should create backups before applying modifications
+
+The Licensor is not responsible for data loss, system damage, or instability resulting from use of the Software.
+
+4. LICENSE VERIFICATION
+
+The Software may include license verification mechanisms.
+
+You agree that:
+
+A valid license key may be required for functionality
+The Software may validate license status periodically
+Unauthorized or invalid licenses may restrict access or functionality
+
+Any attempt to bypass licensing mechanisms is strictly prohibited.
+
+5. UPDATES & MODIFICATIONS
+
+The Licensor may:
+
+Provide updates, patches, or new versions of the Software
+Modify or remove features at any time without notice
+Require updates for continued use
+6. OWNERSHIP
+
+The Software is licensed, not sold.
+
+All rights, title, and interest in the Software remain with 23 Studios, including but not limited to:
+
+Source code
+UI/UX design
+Optimization logic
+Branding and assets
+7. TERMINATION
+
+This Agreement is automatically terminated if you fail to comply with its terms.
+
+Upon termination:
+
+You must stop using the Software immediately
+You must uninstall all copies
+License keys may be revoked without notice
+
+8. DISCLAIMER OF WARRANTY
+
+The Software is provided “AS IS” and “AS AVAILABLE” without warranties of any kind.
+
+To the maximum extent permitted by law, Licensor disclaims:
+
+Implied warranties of merchantability
+Fitness for a particular purpose
+Non-infringement
+Error-free or uninterrupted operation
+
+9. LIMITATION OF LIABILITY
+
+To the maximum extent permitted by law:
+
+23 Studios shall not be liable for:
+
+Loss of data
+System failure or instability
+Hardware or software damage
+Lost profits or business interruption
+Any indirect, incidental, or consequential damages
+
+10. THIRD-PARTY COMPONENTS
+
+The Software may interact with or rely on Windows system components and APIs.
+
+Licensor is not responsible for changes, failures, or limitations caused by Microsoft Windows or third-party drivers/services.
+
+11. GOVERNING LAW
+
+This Agreement shall be governed by and interpreted in accordance with the laws of the United States, without regard to conflict of law principles.
+
+12. SEVERABILITY
+
+If any provision of this Agreement is found invalid, the remaining provisions shall remain in full effect.
+
+13. ENTIRE AGREEMENT
+
+This Agreement constitutes the entire understanding between you and Licensor regarding the Software and supersedes any prior agreements.
+
+CONTACT
+
+For questions regarding this Agreement or licensing:
+
+23 Studios Support
+blakefarnham1@gmail.com
