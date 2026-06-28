@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>23 Optimizer</title>
+    <style>
+        /* ── Reset & Variables ── */
+        :root {
+            --primary: #C0001A;
+            --primary-dim: rgba(192, 0, 26, 0.12);
+            --secondary: #8B0012;
+            --bg: #0D0D0D;
+            --panel: #161616;
+            --card: #1E1E1E;
+            --card-hover: #262626;
+            --text-primary: #F0F0F0;
+            --text-muted: #888888;
+            --success: #22C55E;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --border-subtle: #1a1a1a;
+            --font: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+            --radius: 10px;
+            --radius-btn: 8px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+            background: var(--bg);
+        }
+        body {
+            background: var(--bg);
+            color: var(--text-muted);
+            font-family: var(--font);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ── Noise overlay ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.03;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.6"/></svg>');
+            background-size: 160px 160px;
+        }
+
+        /* ── Navigation ── */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(13, 13, 13, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 2rem;
+            height: 60px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        nav.scrolled {
+            border-bottom-color: rgba(192, 0, 26, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 1.35rem;
+            letter-spacing: -0.3px;
+            transition: transform 0.2s;
+        }
+        .logo-link:hover {
+            transform: scale(1.02);
+        }
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.85rem;
+            color: #fff;
+            clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%);
+            animation: logoGlitch 4s infinite;
+            border-radius: 2px;
+        }
+        @keyframes logoGlitch {
+            0%,
+            100% {
+                transform: skew(0deg);
+            }
+            91% {
+                transform: skew(0deg);
+            }
+            92% {
+                transform: skew(3deg);
+                background: #e01010;
+            }
+            93% {
+                transform: skew(-2deg);
+                background: var(--primary);
+            }
+            94% {
+                transform: skew(0deg);
+            }
+        }
+        .logo-text {
+            color: var(--primary);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .logo-sub {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.8rem;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color var(--transition);
+            padding-bottom: 3px;
+            position: relative;
+        }
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.25s ease;
+            border-radius: 1px;
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .nav-cta {
+            background: var(--primary);
+            color: #fff !important;
+            padding: 8px 20px;
+            border-radius: var(--radius-btn);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all var(--transition);
+            letter-spacing: 0.3px;
+        }
+        .nav-cta:hover {
+            background: #d4001e;
+            box-shadow: 0 0 22px rgba(192, 0, 26, 0.45);
+            color: #fff !important;
+            transform: translateY(-1px);
+        }
+        .nav-cta::after {
+            display: none !important;
+        }
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            z-index: 1001;
+            transition: transform 0.2s;
+        }
+        .nav-toggle:hover {
+            transform: scale(1.1);
+        }
+        .nav-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text-muted);
+            margin: 5px 0;
+            transition: var(--transition);
+            border-radius: 1px;
+        }
+        .nav-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+            background: var(--primary);
+        }
+        .nav-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .nav-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+            background: var(--primary);
+        }
+
+        /* ── Sections ── */
+        .section {
+            padding: 5rem 2rem;
+            position: relative;
+        }
+        .section-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: rgba(192, 0, 26, 0.1);
+            border: 1px solid rgba(192, 0, 26, 0.25);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .section-tag:hover {
+            background: rgba(192, 0, 26, 0.2);
+            border-color: var(--primary);
+        }
+        h2 {
+            font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.4px;
+            line-height: 1.25;
+        }
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 560px;
+            margin-bottom: 2.5rem;
+            line-height: 1.5;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 5rem 2rem 3rem;
+            position: relative;
+            overflow: hidden;
+            animation: heroFadeIn 1s ease forwards;
+        }
+        @keyframes heroFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .hero-glow {
+            position: absolute;
+            top: -180px;
+            right: -180px;
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(192, 0, 26, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulseGlow 5s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.06);
+            }
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        .hero-content .app-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 5px 16px 5px 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1.4rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .app-badge:hover {
+            border-color: rgba(192, 0, 26, 0.3);
+            box-shadow: 0 0 20px rgba(192, 0, 26, 0.05);
+        }
+        .app-badge .mini-logo {
+            width: 22px;
+            height: 22px;
+            background: var(--primary);
+            clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.55rem;
+            font-weight: 900;
+        }
+        .hero-content h1 {
+            font-size: clamp(2.4rem, 5vw, 3.8rem);
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+        }
+        .hero-content h1 .red {
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        .hero-content h1 .red::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s ease;
+        }
+        .hero-content h1:hover .red::after {
+            transform: scaleX(1);
+        }
+        .hero-content .mono-line {
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mono-line .prompt {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .hero-content p {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 480px;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 13px 26px;
+            border-radius: var(--radius-btn);
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            text-decoration: none;
+            transition: all var(--transition);
+            cursor: pointer;
+            border: none;
+            font-family: var(--font);
+            position: relative;
+            overflow: hidden;
+            transform: scale(1);
+        }
+        .btn:active {
+            transform: scale(0.94) !important;
+            transition-duration: 0.08s;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(192, 0, 26, 0.3);
+        }
+        .btn-primary:hover {
+            background: #d4001e;
+            box-shadow: 0 6px 30px rgba(192, 0, 26, 0.5);
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid #3a3a3a;
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: rgba(192, 0, 26, 0.06);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(192, 0, 26, 0.1);
+        }
+
+        /* ── Terminal ── */
+        .terminal-mock {
+            background: #0c0c0c;
+            border: 1px solid #1f1f1f;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: #999;
+            width: 100%;
+            max-width: 460px;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .terminal-mock:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+        }
+        .terminal-header {
+            background: #131313;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3a3a3a;
+            transition: background 0.2s;
+        }
+        .terminal-dot.red {
+            background: #ff3b3b;
+            box-shadow: 0 0 6px rgba(255, 60, 60, 0.5);
+        }
+        .terminal-body {
+            padding: 14px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            color: #777;
+        }
+        .terminal-line {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .prompt {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .cursor {
+            display: inline-block;
+            width: 7px;
+            height: 15px;
+            background: var(--primary);
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+        .scan-progress {
+            background: #1a1a1a;
+            height: 5px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .scan-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            box-shadow: 0 0 10px rgba(192, 0, 26, 0.5);
+            transition: width 0.08s linear;
+            border-radius: 3px;
+        }
+        .scan-log {
+            font-size: 0.7rem;
+            color: #666;
+            height: 75px;
+            overflow-y: hidden;
+            margin-top: 2px;
+            opacity: 0.75;
+        }
+        .scan-log p {
+            margin: 1px 0;
+            font-family: var(--font-mono);
+            animation: logFade 0.3s ease;
+        }
+        @keyframes logFade {
+            0% {
+                opacity: 0;
+                transform: translateX(-6px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ── Stats Strip ── */
+        .stats-strip {
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 2.2rem 2rem;
+            background: #0a0a0a;
+        }
+        .stats-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .stat-item:hover {
+            transform: scale(1.05);
+        }
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            letter-spacing: -1px;
+        }
+        .stat-number span {
+            color: var(--primary);
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 3px;
+        }
+
+        /* ── Tabs ── */
+        .tabs-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #1c1c1c;
+            padding-bottom: 4px;
+        }
+        .tab-btn {
+            background: #1a1a1a;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 16px;
+            font-family: var(--font);
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            border-radius: var(--radius-btn);
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(192, 0, 26, 0.3);
+        }
+        .tab-btn:hover:not(.active) {
+            background: #2a2a2a;
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        .tab-btn:active {
+            transform: scale(0.95);
+        }
+        .tab-pane {
+            display: none;
+            animation: fadeUp 0.4s ease;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Feature Cards ── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 1.2rem;
+        }
+        .feature-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px 18px 18px;
+            transition: all var(--transition);
+            cursor: default;
+            border: 1px solid transparent;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .feature-card.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .feature-card:hover {
+            background: var(--card-hover);
+            border-color: #2a2a2a;
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        }
+        .feature-card .risk-badge {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            transition: all 0.3s;
+        }
+        .feature-card:hover .risk-badge {
+            transform: scale(1.05);
+        }
+        .feature-card .risk-badge.high {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+        .feature-card .risk-badge.low {
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--success);
+        }
+        .feature-card .risk-badge.coming {
+            background: rgba(192, 0, 26, 0.15);
+            color: var(--primary);
+            letter-spacing: 0.5px;
+        }
+        .feature-icon {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 4px rgba(192, 0, 26, 0.3));
+            transition: transform 0.3s;
+        }
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(-3deg);
+        }
+        .feature-card h3 {
+            color: var(--text-primary);
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .feature-card .tweak-type {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #666;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #2a2a2a;
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .feature-card:hover .tweak-type {
+            border-color: #444;
+            color: #999;
+        }
+        .feature-card .tweak-type.coming-badge {
+            color: var(--primary);
+            border-color: rgba(192, 0, 26, 0.3);
+            background: rgba(192, 0, 26, 0.06);
+        }
+
+        /* ── 100+ Tweaks Hero Card ── */
+        .tweaks-hero-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(145deg, #1a0c0e, #0d0d0d);
+            border: 1px solid rgba(192, 0, 26, 0.3);
+            border-radius: var(--radius);
+            padding: 2.2rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        .tweaks-hero-card.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .tweaks-hero-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(192, 0, 26, 0.08), transparent 70%);
+            pointer-events: none;
+            animation: shimmer 6s infinite alternate;
+        }
+        @keyframes shimmer {
+            0% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        .tweaks-hero-card:hover {
+            border-color: rgba(192, 0, 26, 0.6);
+            box-shadow: 0 0 40px rgba(192, 0, 26, 0.1);
+            transform: translateY(-2px);
+        }
+        .tweaks-hero-card .left {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            z-index: 1;
+        }
+        .tweaks-hero-card .big-number {
+            font-size: 3.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            line-height: 1;
+            letter-spacing: -2px;
+            text-shadow: 0 0 40px rgba(192, 0, 26, 0.2);
+            transition: transform 0.3s;
+        }
+        .tweaks-hero-card:hover .big-number {
+            transform: scale(1.04);
+        }
+        .tweaks-hero-card .big-label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .tweaks-hero-card .big-label span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.95rem;
+        }
+        .tweaks-hero-card .coming-tag {
+            background: rgba(192, 0, 26, 0.15);
+            border: 1px solid rgba(192, 0, 26, 0.3);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            z-index: 1;
+            white-space: nowrap;
+            animation: pulseTag 2s infinite;
+        }
+        @keyframes pulseTag {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(192, 0, 26, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 20px 4px rgba(192, 0, 26, 0.1);
+            }
+        }
+        .tweaks-hero-card .coming-tag .pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulseDot 1.4s ease-in-out infinite;
+            vertical-align: middle;
+        }
+        @keyframes pulseDot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(0.6);
+            }
+        }
+
+        /* ── How It Works ── */
+        .how-section {
+            background: #0a0a0a;
+            border-top: 1px solid #141414;
+            border-bottom: 1px solid #141414;
+        }
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.2rem;
+            margin-top: 1.5rem;
+        }
+        .step-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 22px 18px;
+            text-align: center;
+            transition: all var(--transition);
+            border: 1px solid transparent;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .step-card.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .step-card:hover {
+            background: var(--card-hover);
+            border-color: #2a2a2a;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+        }
+        .step-number {
+            display: inline-block;
+            width: 38px;
+            height: 38px;
+            background: rgba(192, 0, 26, 0.12);
+            border: 1px solid rgba(192, 0, 26, 0.3);
+            border-radius: 50%;
+            line-height: 38px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .step-card:hover .step-number {
+            background: rgba(192, 0, 26, 0.2);
+            transform: scale(1.1);
+        }
+        .step-card h4 {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        .step-card p {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        /* ── Pricing ── */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .pricing-card {
+            background: var(--card);
+            border: 1px solid #1c1c1c;
+            border-radius: var(--radius);
+            padding: 2rem 1.8rem;
+            text-align: center;
+            transition: all var(--transition);
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .pricing-card.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            border-color: #333;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        }
+        .pricing-card.featured {
+            border-color: #4a1515;
+            box-shadow: 0 0 35px rgba(192, 0, 26, 0.08);
+        }
+        .pricing-card.featured:hover {
+            border-color: #6a1a1a;
+            box-shadow: 0 0 50px rgba(192, 0, 26, 0.15);
+        }
+        .pricing-card.featured::before {
+            content: 'BEST VALUE';
+            position: absolute;
+            top: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.62rem;
+            padding: 4px 12px;
+            border-radius: 3px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            animation: pulseTag 2.5s infinite;
+        }
+        .pricing-card h3 {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        .price {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            margin: 10px 0;
+            transition: color 0.3s;
+        }
+        .pricing-card:hover .price {
+            color: var(--primary);
+        }
+        .price span {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 400;
+        }
+        .pricing-card ul {
+            list-style: none;
+            text-align: left;
+            margin: 18px 0;
+        }
+        .pricing-card li {
+            padding: 5px 0;
+            color: #999;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #141414;
+            transition: color 0.3s;
+        }
+        .pricing-card:hover li {
+            color: #aaa;
+        }
+        .pricing-card li::before {
+            content: '✓ ';
+            color: var(--success);
+            font-weight: 700;
+        }
+        .pricing-card .btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 1.2rem;
+            justify-content: center;
+        }
+
+        /* ── Footer ── */
+        footer {
+            background: #080808;
+            padding: 3rem 2rem 1.5rem;
+            border-top: 1px solid var(--border-subtle);
+            color: #555;
+        }
+        .footer-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .footer-links {
+            display: flex;
+            gap: 1.8rem;
+            flex-wrap: wrap;
+            list-style: none;
+            justify-content: flex-end;
+        }
+        .footer-links a {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.82rem;
+            transition: color 0.2s, transform 0.2s;
+            display: inline-block;
+        }
+        .footer-links a:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 1.8rem auto 0;
+            padding-top: 1.4rem;
+            border-top: 1px solid #141414;
+            text-align: center;
+            font-size: 0.72rem;
+            color: #444;
+        }
+
+        /* ── Particles ── */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatUp 7s linear infinite;
+            opacity: 0;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-380px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* ── Scroll Reveal (default hidden) ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+        .reveal-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+        .reveal-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* delay helpers */
+        .delay-1 {
+            transition-delay: 0.05s;
+        }
+        .delay-2 {
+            transition-delay: 0.1s;
+        }
+        .delay-3 {
+            transition-delay: 0.15s;
+        }
+        .delay-4 {
+            transition-delay: 0.2s;
+        }
+        .delay-5 {
+            transition-delay: 0.25s;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
+            }
+            .terminal-mock {
+                max-width: 100%;
+            }
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 68%;
+                height: 100vh;
+                background: #0f0f0f;
+                flex-direction: column;
+                padding: 80px 2rem 2rem;
+                border-left: 1px solid var(--border-subtle);
+                transition: right 0.3s ease;
+                z-index: 999;
+                gap: 1.5rem;
+            }
+            .nav-links.open {
+                right: 0;
+            }
+            .nav-toggle {
+                display: block;
+            }
+            .steps-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-links {
+                justify-content: flex-start;
+            }
+            .tweaks-hero-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.8rem 1.5rem;
+            }
+            .tweaks-hero-card .left {
+                flex-wrap: wrap;
+            }
+            .tweaks-hero-card .big-number {
+                font-size: 2.8rem;
+            }
+            .pricing-grid {
+                max-width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .steps-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            .tabs-nav {
+                gap: 4px;
+            }
+            .tab-btn {
+                font-size: 0.7rem;
+                padding: 8px 10px;
+            }
+            .tweaks-hero-card .big-number {
+                font-size: 2.2rem;
+            }
+            .tweaks-hero-card .big-label {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Navigation ── -->
+    <nav id="navbar">
+        <div class="nav-inner">
+            <a href="#" class="logo-link">
+                <div class="logo-icon">23</div>
+                <span class="logo-text">OPTIMIZER</span>
+                <span class="logo-sub">by 23 Studios</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how">How It Works</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="https://github.com/23blay/23Optimizer/raw/main/23Optimizer_v1.0_Setup.exe" class="nav-cta">Download</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── Hero ── -->
+    <section class="hero" id="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-inner">
+            <div class="hero-content">
+                <div class="app-badge">
+                    <div class="mini-logo">23</div>
+                    v1.0 — by 23 Studios
+                </div>
+                <h1>Kill <span class="red">lag.</span><br />Reclaim <span class="red">speed.</span></h1>
+                <div class="mono-line">
+                    <span class="prompt">23optimizer.exe</span>
+                </div>
+                <p>
+                    Aggressive Windows performance optimizer that strips junk, kills parasitic
+                    processes, and tunes your OS down to the metal. No background services.
+                    No telemetry. Just raw speed.
+                </p>
+                <div class="hero-buttons">
+                    <a href="https://github.com/23blay/23Optimizer/raw/main/23Optimizer_v1.0_Setup.exe" class="btn btn-primary" id="heroDownloadBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download Free
+                    </a>
+                    <a href="#features" class="btn btn-outline">Explore Features</a>
+                </div>
+            </div>
+            <div class="terminal-mock" id="terminalMock">
+                <div class="terminal-header">
+                    <div class="terminal-dot red"></div>
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                    <span style="margin-left:8px;font-size:0.65rem;color:#555;">23optimizer.exe</span>
+                </div>
+                <div class="terminal-body">
+                    <div class="terminal-line"><span class="prompt">root@23:~$</span> ./scan --aggressive</div>
+                    <div class="scan-progress"><div class="scan-progress-bar" id="scanBar"></div></div>
+                    <div class="scan-log" id="scanLog"></div>
+                    <div class="terminal-line" style="margin-top:auto;">
+                        <span class="prompt">$</span>
+                        <span id="scanStatus">initializing...</span><span class="cursor"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Stats Strip ── -->
+    <div class="stats-strip">
+        <div class="stats-inner" id="statsContainer">
+            <div class="stat-item reveal delay-1">
+                <div class="stat-number"><span class="count" data-target="60">0</span><span>+</span></div>
+                <div class="stat-label">Optimizations</div>
+            </div>
+            <div class="stat-item reveal delay-2">
+                <div class="stat-number"><span class="count" data-target="5">0</span><span>/5</span></div>
+                <div class="stat-label">Rating</div>
+            </div>
+            <div class="stat-item reveal delay-3">
+                <div class="stat-number"><span class="count" data-target="97">0</span><span>%</span></div>
+                <div class="stat-label">Faster Boot</div>
+            </div>
+            <div class="stat-item reveal delay-4">
+                <div class="stat-number">&lt;<span class="count" data-target="2">0</span><span>mb</span></div>
+                <div class="stat-label">Installer Size</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Features Section ── -->
+    <section class="section" id="features">
+        <div class="section-inner">
+            <span class="section-tag">Categories</span>
+            <h2>Purpose built optimization.</h2>
+            <p class="section-subtitle">
+                Every tweak is an action against slowness. Organized exactly like the app.
+            </p>
+            <div class="tabs-nav" id="tabNav">
+                <button class="tab-btn active" data-tab="power">⚡ Power &amp; CPU</button>
+                <button class="tab-btn" data-tab="gpu">🖥 GPU &amp; Display</button>
+                <button class="tab-btn" data-tab="ram">🧠 RAM &amp; Memory</button>
+                <button class="tab-btn" data-tab="network">🌐 Network</button>
+                <button class="tab-btn" data-tab="gaming">🎮 Gaming</button>
+                <button class="tab-btn" data-tab="visual">🎨 Visual &amp; UI</button>
+                <button class="tab-btn" data-tab="services">⚙ Services</button>
+                <button class="tab-btn" data-tab="privacy">🔒 Privacy</button>
+                <button class="tab-btn" data-tab="storage">💾 Storage</button>
+            </div>
+
+            <!-- ── Each tab includes the 100+ Tweaks hero card ── -->
+            <!-- Power & CPU -->
+            <div class="tab-pane active" id="tab-power">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">⚡</div>
+                        <h3>Ultimate Performance Plan</h3>
+                        <p>Activates the hidden Ultimate Performance power plan for maximum responsiveness.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🔲</div>
+                        <h3>Disable Core Parking</h3>
+                        <p>Prevents CPU cores from sleeping during light load — keeps all cores ready.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">⚙</div>
+                        <h3>Disable Power Throttling</h3>
+                        <p>Prevents Windows from throttling CPU performance during gaming sessions.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🔌</div>
+                        <h3>Disable USB Suspend</h3>
+                        <p>Prevents USB devices from power-cycling and causing input interruptions.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="feature-card reveal delay-5">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">💤</div>
+                        <h3>Disable Hibernation</h3>
+                        <p>Frees disk space equal to your RAM size and reduces SSD write cycles.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <!-- 100+ Tweaks coming soon -->
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GPU & Display -->
+            <div class="tab-pane" id="tab-gpu">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🖥</div>
+                        <h3>Hardware GPU Scheduling</h3>
+                        <p>Enables WDDM 2.7 hardware-accelerated GPU scheduling for lower latency.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">⏱</div>
+                        <h3>Increase TDR Delay</h3>
+                        <p>Extends GPU timeout to 10 seconds — prevents spurious crashes on heavy loads.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🔄</div>
+                        <h3>Enable VRR System-Wide</h3>
+                        <p>Enables Variable Refresh Rate globally for smoother gameplay.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🎯</div>
+                        <h3>Increase GPU Workload Priority</h3>
+                        <p>Forces GPU to favor compute and graphics over power saving modes.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAM & Memory -->
+            <div class="tab-pane" id="tab-ram">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🧠</div>
+                        <h3>Disable SysMain (Superfetch)</h3>
+                        <p>Stops background memory pre-loading that interferes with gaming.</p>
+                        <span class="tweak-type">service</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🗜</div>
+                        <h3>Disable Memory Compression</h3>
+                        <p>Disables RAM compression to save CPU cycles for what matters.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">📄</div>
+                        <h3>Disable Paging Executive</h3>
+                        <p>Keeps kernel and drivers locked in RAM — reduces disk paging latency.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <span class="risk-badge high">high risk</span>
+                        <div class="feature-icon">🚫</div>
+                        <h3>Disable Page File</h3>
+                        <p>Eliminates disk paging entirely. Requires 16GB+ RAM.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network -->
+            <div class="tab-pane" id="tab-network">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🌐</div>
+                        <h3>Disable Nagle's Algorithm</h3>
+                        <p>Reduces TCP latency by setting TcpAckFrequency to 1 on all adapters.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🚦</div>
+                        <h3>Disable Network Throttling</h3>
+                        <p>Removes Windows multimedia scheduler bandwidth cap for full throughput.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🔒</div>
+                        <h3>Disable Delivery Optimization</h3>
+                        <p>Stops Windows from using your bandwidth to serve updates to others.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">📡</div>
+                        <h3>Enable RSS Scaling</h3>
+                        <p>Distributes network processing across all CPU cores for better throughput.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gaming -->
+            <div class="tab-pane" id="tab-gaming">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🎮</div>
+                        <h3>Disable Xbox Game Bar</h3>
+                        <p>Removes the overlay, screenshot, and recording widget completely.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🎯</div>
+                        <h3>Enable Game Mode</h3>
+                        <p>Allows Windows scheduler to prioritize the currently focused game.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🖥</div>
+                        <h3>Disable Fullscreen Optimizations</h3>
+                        <p>Forces true exclusive fullscreen — reduces input latency.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <span class="risk-badge high">high risk</span>
+                        <div class="feature-icon">⏰</div>
+                        <h3>Disable HPET</h3>
+                        <p>Can improve gaming FPS on some systems. Use with caution.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual & UI -->
+            <div class="tab-pane" id="tab-visual">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🎨</div>
+                        <h3>Disable Animations</h3>
+                        <p>Removes all Windows UI animation effects for the fastest experience.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🪟</div>
+                        <h3>Disable Transparency</h3>
+                        <p>Disables acrylic blur effects on taskbar and menus — saves GPU resources.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🚀</div>
+                        <h3>Remove Startup Delay</h3>
+                        <p>Eliminates the Explorer shell startup delay when you log in.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services -->
+            <div class="tab-pane" id="tab-services">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">⚙</div>
+                        <h3>DiagTrack (Telemetry)</h3>
+                        <p>Disables the Connected User Experiences and Telemetry service.</p>
+                        <span class="tweak-type">service</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🎮</div>
+                        <h3>Xbox Services</h3>
+                        <p>Disables Xbox Live Auth, Game Save, Networking, and Accessories services.</p>
+                        <span class="tweak-type">service</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🔍</div>
+                        <h3>Windows Search</h3>
+                        <p>Disables Windows Search indexing — frees CPU and RAM on gaming rigs.</p>
+                        <span class="tweak-type">service</span>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">📍</div>
+                        <h3>Geolocation Service</h3>
+                        <p>Disables the Windows Location Service for privacy and performance.</p>
+                        <span class="tweak-type">service</span>
+                    </div>
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy -->
+            <div class="tab-pane" id="tab-privacy">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🔒</div>
+                        <h3>Disable Telemetry</h3>
+                        <p>Blocks Windows diagnostic data collection via Group Policy.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🆔</div>
+                        <h3>Disable Advertising ID</h3>
+                        <p>Prevents apps from accessing your advertising identifier.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🎙</div>
+                        <h3>Disable Cortana</h3>
+                        <p>Disables Cortana search integration via Group Policy.</p>
+                        <span class="tweak-type">registry</span>
+                    </div>
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Storage -->
+            <div class="tab-pane" id="tab-storage">
+                <div class="features-grid">
+                    <div class="feature-card reveal delay-1">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">💾</div>
+                        <h3>Enable SSD TRIM</h3>
+                        <p>Ensures TRIM delete notification is active for optimal SSD performance.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="feature-card reveal delay-2">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">📝</div>
+                        <h3>Disable 8.3 Filenames</h3>
+                        <p>Stops NTFS from generating legacy short filenames — reduces overhead.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="feature-card reveal delay-3">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">⏱</div>
+                        <h3>Disable Last Access Timestamp</h3>
+                        <p>Reduces disk writes by not tracking file access time.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="feature-card reveal delay-4">
+                        <span class="risk-badge low">low risk</span>
+                        <div class="feature-icon">🧩</div>
+                        <h3>Disable Disk Defrag on SSDs</h3>
+                        <p>Prevents automatic defragmentation on SSDs to improve lifespan.</p>
+                        <span class="tweak-type">command</span>
+                    </div>
+                    <div class="tweaks-hero-card reveal">
+                        <div class="left">
+                            <div class="big-number">100+</div>
+                            <div class="big-label">
+                                Tweaks<br />
+                                <span>and counting. All coming soon.</span>
+                            </div>
+                        </div>
+                        <div class="coming-tag">
+                            <span class="pulse-dot"></span> Coming in v2.0
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── How It Works ── -->
+    <section class="how-section section" id="how">
+        <div class="section-inner">
+            <span class="section-tag">The Process</span>
+            <h2>From scan to speed in four steps.</h2>
+            <p class="section-subtitle">No confusing menus. No background services. Just results you can feel.</p>
+            <div class="steps-grid">
+                <div class="step-card reveal delay-1">
+                    <div class="step-number">01</div>
+                    <h4>Analyze</h4>
+                    <p>23 Optimizer audits processes, disk, registry, and network in under 60 seconds.</p>
+                </div>
+                <div class="step-card reveal delay-2">
+                    <div class="step-number">02</div>
+                    <h4>Review</h4>
+                    <p>Clear report with severity levels. You choose what to fix. Full transparency.</p>
+                </div>
+                <div class="step-card reveal delay-3">
+                    <div class="step-number">03</div>
+                    <h4>Optimize</h4>
+                    <p>One click executes all selected fixes. Watch real-time performance gains.</p>
+                </div>
+                <div class="step-card reveal delay-4">
+                    <div class="step-number">04</div>
+                    <h4>Relax</h4>
+                    <p>Close the app. No background processes. Your machine stays clean.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Pricing ── -->
+    <section class="section" id="pricing">
+        <div class="section-inner">
+            <span class="section-tag">Pricing</span>
+            <h2>One payment. Forever.</h2>
+            <p class="section-subtitle">No subscriptions. No recurring fees. Choose the plan that fits.</p>
+            <div class="pricing-grid">
+                <div class="pricing-card reveal delay-1">
+                    <h3>Basic</h3>
+                    <div class="price">$5<span>/once</span></div>
+                    <ul>
+                        <li>Basic scan &amp; clean</li>
+                        <li>Manual process killer</li>
+                        <li>Community support</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline">Get Basic — $5</a>
+                </div>
+                <div class="pricing-card featured reveal delay-2">
+                    <h3>Pro</h3>
+                    <div class="price">$10<span>/once</span></div>
+                    <ul>
+                        <li>Everything in Basic</li>
+                        <li>Deep automated cleaning</li>
+                        <li>Startup &amp; registry repair</li>
+                        <li>Privacy &amp; network tools</li>
+                        <li><strong>Lifetime updates</strong> (all future versions)</li>
+                        <li>Priority email support</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Get Pro — $10</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="logo-icon" style="width:22px;height:22px;font-size:0.6rem;">23</div>
+                <span style="color:#888;">23 <strong style="color:#aaa;">Optimizer</strong> by 23 Studios</span>
+            </div>
+            <ul class="footer-links">
+                <li><a href="#">Documentation</a></li>
+                <li><a href="#">Changelog</a></li>
+                <li><a href="#">Support</a></li>
+                <li><a href="#">Privacy</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 23 Studios. Not affiliated with Microsoft. Use responsibly. Always back up your data.
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            // ── Navbar scroll ──
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                navbar.classList.toggle('scrolled', window.scrollY > 20);
+            });
+
+            // ── Mobile nav ──
+            const navToggle = document.getElementById('navToggle');
+            const navLinks = document.getElementById('navLinks');
+            navToggle.addEventListener('click', () => {
+                navToggle.classList.toggle('active');
+                navLinks.classList.toggle('open');
+            });
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navToggle.classList.remove('active');
+                    navLinks.classList.remove('open');
+                });
+            });
+
+            // ── Tabs ──
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+                    const targetPane = document.getElementById('tab-' + tabId);
+                    if (targetPane) targetPane.classList.add('active');
+                    // re-trigger reveal for cards inside the newly active tab
+                    const cards = targetPane.querySelectorAll('.reveal:not(.visible)');
+                    if (cards.length) {
+                        setTimeout(() => {
+                            cards.forEach(c => c.classList.add('visible'));
+                        }, 100);
+                    }
+                });
+            });
+
+            // ── Terminal scan ──
+            const scanBar = document.getElementById('scanBar');
+            const scanLog = document.getElementById('scanLog');
+            const scanStatus = document.getElementById('scanStatus');
+            const logMessages = [
+                '[OK] Detecting system hardware...',
+                '[OK] GPU: NVIDIA GeForce RTX 3080 (WDDM 3.0)',
+                '[OK] Found 4 memory hogs (chrome.exe, discord.exe, onedrive.exe, teams.exe)',
+                '[OK] Cleaning temp files... 2.1 GB freed',
+                '[OK] Repairing registry inconsistencies... 12 fixed',
+                '[OK] Disabling telemetry hooks...',
+                '[OK] Network tuning applied — TCP latency reduced',
+                '[DONE] 23 Optimizer scan complete. System optimized.'
+            ];
+            let progress = 0;
+            let logIndex = 0;
+
+            function updateScan() {
+                if (progress < 100) {
+                    progress += Math.random() * 2.5 + 1;
+                    if (progress > 100) progress = 100;
+                    scanBar.style.width = progress + '%';
+                    const targetLogIndex = Math.floor((progress / 100) * logMessages.length);
+                    while (logIndex < targetLogIndex && logIndex < logMessages.length) {
+                        const p = document.createElement('p');
+                        p.textContent = logMessages[logIndex];
+                        scanLog.appendChild(p);
+                        scanLog.scrollTop = scanLog.scrollHeight;
+                        logIndex++;
+                    }
+                    if (progress < 100) {
+                        scanStatus.textContent = 'scanning...';
+                        setTimeout(updateScan, 70 + Math.random() * 100);
+                    } else {
+                        scanStatus.textContent = 'complete. System optimized.';
+                        scanBar.style.boxShadow = '0 0 18px rgba(192,0,26,0.6)';
+                    }
+                }
+            }
+            setTimeout(updateScan, 500);
+
+            // ── Count-up ──
+            const countElements = document.querySelectorAll('.count');
+            const statsContainer = document.getElementById('statsContainer');
+            let counted = false;
+
+            function animateCounts() {
+                if (counted) return;
+                const rect = statsContainer.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 40) {
+                    counted = true;
+                    countElements.forEach(el => {
+                        const target = parseFloat(el.dataset.target);
+                        const isDecimal = target % 1 !== 0;
+                        const duration = 1400;
+                        const startTime = performance.now();
+
+                        function update(now) {
+                            const elapsed = now - startTime;
+                            const prog = Math.min(elapsed / duration, 1);
+                            const eased = 1 - Math.pow(1 - prog, 3);
+                            const current = eased * target;
+                            el.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
+                            if (prog < 1) requestAnimationFrame(update);
+                            else el.textContent = target;
+                        }
+                        requestAnimationFrame(update);
+                    });
+                }
+            }
+            window.addEventListener('scroll', animateCounts);
+            animateCounts();
+
+            // ── Particles ──
+            const hero = document.querySelector('.hero');
+            for (let i = 0; i < 22; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = (55 + Math.random() * 45) + '%';
+                particle.style.animationDelay = Math.random() * 7 + 's';
+                particle.style.width = (1 + Math.random() * 2.5) + 'px';
+                particle.style.height = particle.style.width;
+                hero.appendChild(particle);
+            }
+
+            // ── Scroll Reveal (Intersection Observer) ──
+            const revealElements = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.12,
+                rootMargin: '0px 0px -20px 0px'
+            });
+            revealElements.forEach(el => observer.observe(el));
+
+            // ── Button click feedback (all buttons) ──
+            const allBtns = document.querySelectorAll('.btn, .tab-btn, .nav-toggle');
+            allBtns.forEach(btn => {
+                btn.addEventListener('mousedown', () => {
+                    btn.style.transition = 'transform 0.08s ease';
+                    btn.style.transform = 'scale(0.94)';
+                });
+                btn.addEventListener('mouseup', () => {
+                    btn.style.transform = 'scale(1)';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'scale(1)';
+                });
+                // touch support
+                btn.addEventListener('touchstart', () => {
+                    btn.style.transition = 'transform 0.08s ease';
+                    btn.style.transform = 'scale(0.94)';
+                });
+                btn.addEventListener('touchend', () => {
+                    btn.style.transform = 'scale(1)';
+                });
+            });
+
+            // ── Brand ──
+            console.log('%c 23 OPTIMIZER %c v3.8.5 — by 23 Studios ',
+                'background:#C0001A;color:#fff;padding:5px 10px;font-weight:bold;font-family:monospace;border-radius:3px 0 0 3px;',
+                'background:#0D0D0D;color:#888;padding:5px 10px;font-family:monospace;border-radius:0 3px 3px 0;');
+            console.log('%cAuthentic build. No AI templates. Just real performance.',
+                'color:#666;font-style:italic;');
+        })();
+    </script>
+</body>
+</html>
